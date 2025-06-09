@@ -7,6 +7,8 @@ services:
       - 'ALLOW_EMPTY_PASSWORD=yes'
       - 'REDIS_NODES=cluster.redis.config.com redis-node-1 redis-node-2'
       - 'REDIS_CLUSTER_ANNOUNCE_IP=cluster.redis.config.com'
+    volumes:
+      - redis-cluster-data:/bitnami/redis/data
     networks:
       - redis-cluster-network
 
@@ -15,6 +17,8 @@ services:
     environment:
       - 'ALLOW_EMPTY_PASSWORD=yes'
       - 'REDIS_NODES=cluster.redis.config.com redis-node-1 redis-node-2'
+    volumes:
+      - redis-node-1-data:/bitnami/redis/data
     networks:
       - redis-cluster-network
 
@@ -23,6 +27,8 @@ services:
     environment:
       - 'ALLOW_EMPTY_PASSWORD=yes'
       - 'REDIS_NODES=cluster.redis.config.com redis-node-1 redis-node-2'
+    volumes:
+      - redis-node-2-data:/bitnami/redis/data
     networks:
       - redis-cluster-network
 
@@ -50,3 +56,11 @@ services:
 networks:
   redis-cluster-network:
     external: true
+
+volumes:
+  redis-cluster-data:
+    driver: local
+  redis-node-1-data:
+    driver: local
+  redis-node-2-data:
+    driver: local
