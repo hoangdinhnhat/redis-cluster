@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  cluster.redis.config.com:
+    image: bitnami/redis-cluster:8.0.2
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_NODES=cluster.redis.config.com redis-node-1 redis-node-2'
+      - 'REDIS_CLUSTER_ANNOUNCE_IP=cluster.redis.config.com'
+    networks:
+      - redis-cluster-network
+
+  redis-node-1:
+    image: bitnami/redis-cluster:8.0.2
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_NODES=cluster.redis.config.com redis-node-1 redis-node-2'
+    networks:
+      - redis-cluster-network
+
+  redis-node-2:
+    image: bitnami/redis-cluster:8.0.2
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_NODES=cluster.redis.config.com redis-node-1 redis-node-2'
+    networks:
+      - redis-cluster-network
+
+  redis-init:
+    image: bitnami/redis-cluster:8.0.2
+    depends_on:
+      - cluster.redis.config.com
+      - redis-node-1
+      - redis-node-2
+    environment:
+      - 'REDIS_CLUSTER_REPLICAS=0'
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+      - 'REDIS_NODES=cluster.redis.config.com redis-node-1 redis-node-2'
+      - 'REDIS_CLUSTER_CREATOR=yes'
+    networks:
+      - redis-cluster-network
+
+  application:
+    image: simple-app:latest
+    depends_on:
+      - cluster.redis.config.com
+    networks:
+      - redis-cluster-network
+
+networks:
+  redis-cluster-network:
+    external: true
